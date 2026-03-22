@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function LandingPage() {
   return (
@@ -21,11 +22,14 @@ export default function LandingPage() {
           </svg>
           <span className="text-lg font-semibold">Relay</span>
         </div>
-        <Link href="/signin">
-          <Button variant="outline" size="sm" className="hover:bg-muted">
-            Sign In
-          </Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <Link href="/signin">
+            <Button variant="outline" size="sm" className="hover:bg-muted">
+              Sign In
+            </Button>
+          </Link>
+        </div>
       </header>
 
       {/* Hero */}
