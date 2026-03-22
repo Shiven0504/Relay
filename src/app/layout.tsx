@@ -8,6 +8,9 @@ export const metadata: Metadata = {
   title: "Relay",
   description:
     "Let non-technical team members contribute to your codebase with a simple chat interface.",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({
