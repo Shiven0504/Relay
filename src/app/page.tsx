@@ -7,13 +7,22 @@ export default function LandingPage() {
       {/* Nav */}
       <header className="flex items-center justify-between px-6 py-4">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground text-sm font-bold">
-            R
-          </div>
+          <svg viewBox="0 0 512 512" className="h-8 w-8">
+            <rect width="512" height="512" rx="108" fill="#2563eb"/>
+            <rect x="100" y="130" width="200" height="160" rx="28" fill="white" opacity="0.9"/>
+            <polygon points="160,290 180,340 220,290" fill="white" opacity="0.9"/>
+            <g fill="none" stroke="white" strokeWidth="32" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M280 256 L380 256"/>
+              <path d="M345 220 L385 256 L345 292"/>
+            </g>
+            <rect x="140" y="175" width="80" height="14" rx="7" fill="#2563eb"/>
+            <rect x="140" y="205" width="120" height="14" rx="7" fill="#2563eb"/>
+            <rect x="140" y="235" width="60" height="14" rx="7" fill="#2563eb"/>
+          </svg>
           <span className="text-lg font-semibold">Relay</span>
         </div>
         <Link href="/signin">
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" className="hover:bg-muted">
             Sign In
           </Button>
         </Link>
