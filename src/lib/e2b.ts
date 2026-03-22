@@ -92,7 +92,7 @@ export async function runCommand(
   return {
     stdout: result.stdout,
     stderr: result.stderr,
-    exitCode: result.exitCode,
+    exitCode: result.exitCode ?? 0,
   };
 }
 
