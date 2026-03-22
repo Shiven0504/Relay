@@ -56,7 +56,7 @@ export default async function SessionHistoryPage() {
                       : s.outcome === "PR_CREATED"
                         ? "default"
                         : s.outcome === "DISCARDED"
-                          ? "muted"
+                          ? "destructive"
                           : "muted"
                   }
                 >
