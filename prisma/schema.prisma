@@ -1,0 +1,176 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── NextAuth models ──────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+
+  memberships   OrgMember[]
+  chatSessions  ChatSession[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+}
+
+// ── Relay domain models ──────────────────────────────────────
+
+model Organization {
+  id               String   @id @default(cuid())
+  name             String
+  anthropicKeyEnc  String   // encrypted Anthropic API key
+  githubInstallId  String?  // GitHub App installation ID
+
+  members  OrgMember[]
+  projects Project[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum OrgRole {
+  ADMIN
+  MEMBER
+}
+
+model OrgMember {
+  id     String  @id @default(cuid())
+  role   OrgRole @default(MEMBER)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  orgId String
+  org   Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  joinedAt DateTime @default(now())
+
+  @@unique([userId, orgId])
+}
+
+model Project {
+  id             String        @id @default(cuid())
+  name           String
+  repoFullName   String        // e.g. "acme/web-app"
+  repoUrl        String
+  defaultBranch  String        @default("main")
+  startCommand   String        // e.g. "npm run dev"
+  envVarsEnc     String?       // encrypted .env contents
+  agentContext   String?       // extra instructions for Claude Code
+  services       String[]      // e.g. ["postgres", "redis"]
+  e2bTemplateId  String?       // E2B sandbox template ID
+  setupStatus    SetupStatus   @default(PENDING)
+
+  orgId String
+  org   Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  sessions ChatSession[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum SetupStatus {
+  PENDING
+  IN_PROGRESS
+  READY
+  FAILED
+}
+
+model ChatSession {
+  id          String        @id @default(cuid())
+  status      SessionStatus @default(ACTIVE)
+  sandboxId   String?       // E2B sandbox ID
+  previewUrl  String?       // exposed frontend URL
+  outcome     SessionOutcome?
+  prUrl       String?       // GitHub PR URL if created
+  branchName  String?
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  messages Message[]
+
+  startedAt  DateTime  @default(now())
+  lastActiveAt DateTime @default(now())
+  endedAt    DateTime?
+}
+
+enum SessionStatus {
+  ACTIVE
+  PAUSED
+  ENDED
+}
+
+enum SessionOutcome {
+  PR_CREATED
+  COMMITTED
+  DISCARDED
+}
+
+model Message {
+  id      String      @id @default(cuid())
+  role    MessageRole
+  content String
+
+  sessionId String
+  session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+}
